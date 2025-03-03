@@ -26,7 +26,7 @@ const Navbar = ({ onSelectCategory, onSearch }) => {
         <nav className="navbar navbar-expand-lg fixed-top">
           <div className="container-fluid">
             <a className="navbar-brand" href="https://Manohar.com/">
-              Manohar-E-com
+              Manohar E-com
             </a>
             <button
               className="navbar-toggler"
@@ -76,14 +76,14 @@ const Navbar = ({ onSelectCategory, onSearch }) => {
                 )}
               </button>
               <div className="d-flex align-items-center cart">
-                {/* <a href="/cart" className="nav-link text-dark"> */}
-                <i
-                  className="bi bi-cart me-2"
-                  style={{ display: "flex", alignItems: "center" }}
-                >
-                  Cart
-                </i>
-                {/* </a> */}
+                <a href="/cart" className="nav-link text-dark">
+                  <i
+                    className="bi bi-cart me-2"
+                    style={{ display: "flex", alignItems: "center" }}
+                  >
+                    Cart
+                  </i>
+                </a>
 
                 <input
                   className="form-control me-2"
