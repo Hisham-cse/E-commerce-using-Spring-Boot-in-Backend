@@ -23,10 +23,14 @@ const Navbar = ({ onSelectCategory, onSearch }) => {
   const fetchData = async (value) => {
     try {
       const response = await axios.get("http://localhost:8080/api/products");
-      setSearchResults(response.data);
-      console.log(response.data);
+      if (response.data) {
+        setSearchResults(response.data);
+        console.log("Products fetched successfully:", response.data);
+      }
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error("Error fetching data:", error.response || error);
+      // Handle the error appropriately
+      setSearchResults([]);
     }
   };
 
@@ -77,8 +81,8 @@ const Navbar = ({ onSelectCategory, onSearch }) => {
       <header>
         <nav className="navbar navbar-expand-lg fixed-top">
           <div className="container-fluid">
-            <a className="navbar-brand" href="https://Manohar.com/">
-              Manohar E-com
+            <a className="navbar-brand" href="https://Hisham.com/">
+              Hisham E-com
             </a>
             <button
               className="navbar-toggler"

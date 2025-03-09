@@ -7,6 +7,7 @@ const Home = ({ selectedCategory }) => {
   const { data, isError, addToCart, refreshData } = useContext(AppContext);
   const [products, setProducts] = useState([]);
   const [isDataFetched, setIsDataFetched] = useState(false);
+  const [hoveredProduct, setHoveredProduct] = useState(null);
 
   useEffect(() => {
     if (!isDataFetched) {
@@ -50,115 +51,126 @@ const Home = ({ selectedCategory }) => {
 
   if (isError) {
     return (
-      <h2 className="text-center" style={{ padding: "10rem" }}>
-        Something went wrong...
-      </h2>
+      <div className="error-container">
+        <div className="alert alert-danger text-center" role="alert">
+          <i className="bi bi-exclamation-triangle-fill me-2"></i>
+          Something went wrong... Please try again later.
+        </div>
+      </div>
     );
   }
+
   return (
-    <>
-      <div className="grid">
-        {filteredProducts.length === 0 ? (
-          <h2
-            className="text-center"
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            No Products Available
-          </h2>
-        ) : (
-          filteredProducts.map((product) => {
-            const { id, brand, name, price, productAvailable, imageUrl } =
-              product;
-            const cardStyle = {
-              width: "18rem",
-              height: "12rem",
-              boxShadow: "rgba(0, 0, 0, 0.24) 0px 2px 3px",
-              backgroundColor: productAvailable ? "#fff" : "#ccc",
-            };
+    <div className="home-container">
+      <div className="featured-banner">
+        <div className="banner-content">
+          <h1>Welcome to Hisham E-commerce</h1>
+          <p>Discover amazing products at unbeatable prices</p>
+          <button className="btn btn-light ">Shop Now</button>
+        </div>
+      </div>
+      
+      {selectedCategory && (
+        <div className="category-header">
+          <h2>{selectedCategory} Products</h2>
+          <div className="category-divider"></div>
+        </div>
+      )}
+      
+      {filteredProducts.length === 0 ? (
+        <div className="no-products">
+          <i className="bi bi-search fs-1"></i>
+          <h3>No Products Available</h3>
+          <p>We couldn't find any products in this category.</p>
+          <Link to="/" className="btn btn-primary">
+            Browse All Products
+          </Link>
+        </div>
+      ) : (
+        <div className="products-grid">
+          {filteredProducts.map((product) => {
+            const { id, brand, name, price, productAvailable, imageUrl, description } = product;
+            const isHovered = hoveredProduct === id;
+            
             return (
               <div
-                className="card mb-3"
-                style={{
-                  width: "18rem",
-                  height: "24rem",
-                  boxShadow: "rgba(0, 0, 0, 0.24) 0px 2px 3px",
-                  backgroundColor: productAvailable ? "#fff" : "#ccc",
-                  margin: "10px",
-                  display: "flex",
-                  flexDirection: "column",
-                }}
+                className={`product-card ${!productAvailable ? 'out-of-stock' : ''}`}
                 key={id}
+                onMouseEnter={() => setHoveredProduct(id)}
+                onMouseLeave={() => setHoveredProduct(null)}
               >
                 <Link
                   to={`/product/${id}`}
-                  style={{ textDecoration: "none", color: "inherit" }}
+                  className="product-link"
                 >
-                  <img
-                    src={imageUrl}
-                    alt={name}
-                    style={{
-                      width: "100%",
-                      height: "180px",
-                      objectFit: "cover",
-                      padding: "5px",
-                      margin: "0",
-                    }}
-                  />
-                  <div
-                    className="buttons"
-                    style={{
-                      position: "absolute",
-                      top: "25px",
-                      left: "220px",
-                      zIndex: "1",
-                      
-                    }}
-                  >
-                    <div className="buttons-liked">
-                      <i className="bi bi-heart"></i>
-                    </div>
+                  <div className="product-image-container">
+                    <img
+                      src={imageUrl}
+                      alt={name}
+                      className="product-image"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "https://via.placeholder.com/300x200?text=No+Image";
+                      }}
+                    />
+                    {!productAvailable && (
+                      <div className="out-of-stock-overlay">
+                        <span>Out of Stock</span>
+                      </div>
+                    )}
+                    {isHovered && productAvailable && (
+                      <div className="quick-actions">
+                        <button 
+                          className="quick-view-btn"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            window.location.href = `/product/${id}`;
+                          }}
+                        >
+                          <i className="bi bi-eye"></i>
+                        </button>
+                        <button 
+                          className="quick-add-btn"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            addToCart(product);
+                          }}
+                        >
+                          <i className="bi bi-cart-plus"></i>
+                        </button>
+                      </div>
+                    )}
                   </div>
-                  <div
-                    className="card-body"
-                    style={{
-                      flexGrow: 1,
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "space-between",
-                      padding: "10px",
-                    }}
-                  >
-                    <div>
-                      <h5
-                        className="card-title"
-                        style={{ margin: "0 0 10px 0" }}
-                      >
-                        {name.toUpperCase()}
-                      </h5>
-                      <i className="card-brand" style={{ fontStyle: "italic" }}>
-                        {"~ " + brand}
-                      </i>
+                  
+                  <div className="product-badge">
+                    {product.stockQuantity < 5 && product.stockQuantity > 0 ? (
+                      <span className="badge bg-warning">Low Stock</span>
+                    ) : product.stockQuantity === 0 ? (
+                      <span className="badge bg-danger">Sold Out</span>
+                    ) : (
+                      <span className="badge bg-success">In Stock</span>
+                    )}
+                  </div>
+                  
+                  <div className="product-info">
+                    <div className="product-brand">{brand || "No Brand"}</div>
+                    <h3 className="product-name">{name || "Unnamed Product"}</h3>
+                    <div className="product-description-preview">
+                      {description && description.length > 60 
+                        ? `${description.substring(0, 60)}...` 
+                        : description || "No description available"}
                     </div>
-                    <div>
-                      <h5
-                        className="card-text"
-                        style={{ fontWeight: "600", margin: "5px 0" }}
-                      >
-                        {"$" + price}
-                      </h5>
+                    <div className="product-price-container">
+                      <span className="product-price">₹{price || "0.00"}</span>
                       <button
-                        className="btn btn-primary"
-                        style={{ width: "100%" }}
+                        className="add-to-cart-btn"
                         onClick={(e) => {
                           e.preventDefault();
                           addToCart(product);
                         }}
                         disabled={!productAvailable}
                       >
+                        <i className="bi bi-cart-plus"></i>
                         {productAvailable ? "Add to Cart" : "Out of Stock"}
                       </button>
                     </div>
@@ -166,10 +178,10 @@ const Home = ({ selectedCategory }) => {
                 </Link>
               </div>
             );
-          })
-        )}
-      </div>
-    </>
+          })}
+        </div>
+      )}
+    </div>
   );
 };
 
